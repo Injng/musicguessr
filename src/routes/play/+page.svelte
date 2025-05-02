@@ -1,11 +1,12 @@
 <script lang="ts">
     import type { PageData } from './$types';
+    import {goto} from "$app/navigation";
 
     let { data }: { data: PageData } = $props();
     const { sets } = data;
 
     function addSet() {
-        console.log('Add new set clicked');
+        goto('/play/new');
     }
 </script>
 
