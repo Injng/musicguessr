@@ -1,10 +1,11 @@
-CREATE TABLE recordings (
-    id SERIAL PRIMARY KEY,
-    piece_id INT NOT NULL,
-    artist_id INT NOT NULL,
-    url VARCHAR(255) NOT NULL,
-    FOREIGN KEY (piece_id) REFERENCES pieces(id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE RESTRICT ON UPDATE CASCADE
+CREATE TABLE recordings
+(
+    id        SERIAL PRIMARY KEY,
+    piece_id  INT          NOT NULL,
+    artist_id INT          NOT NULL,
+    url       VARCHAR(255) NOT NULL,
+    FOREIGN KEY (piece_id) REFERENCES pieces (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (artist_id) REFERENCES artists (id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE INDEX idx_recording_piece ON recordings (piece_id);
