@@ -1,6 +1,7 @@
 CREATE TABLE sets (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    owner_id UUID NOT NULL,
     description TEXT NULL
 );
 
