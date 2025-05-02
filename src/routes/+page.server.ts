@@ -6,9 +6,9 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 
 export const load = async ({ locals: { session } }) => {
-    // If user is already logged in, redirect to private area
+    // if user is already logged in, redirect to private area
     if (session) {
-        redirect(303, '/private');
+        redirect(303, '/play');
     }
     
     // initialize the login form with superforms
