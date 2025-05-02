@@ -16,6 +16,24 @@ ON public.artists
 FOR INSERT
 WITH CHECK (public.authorize('artists.insert'));
 
+-- ---- Composers Table ----
+ALTER TABLE public.composers ENABLE ROW LEVEL SECURITY;
+
+-- Policy 1: Allow read access for all authenticated users
+CREATE
+POLICY "Allow read access to authenticated users"
+ON public.composers
+FOR
+SELECT
+    USING (auth.role() = 'authenticated');
+
+-- Policy 2: Allow insert based on 'composers.insert' permission (Admin only per your setup)
+CREATE
+POLICY "Allow admin insert access based on permissions"
+ON public.composers
+FOR INSERT
+WITH CHECK (public.authorize('composers.insert'));
+
 -- ---- Pieces Table ----
 ALTER TABLE public.pieces ENABLE ROW LEVEL SECURITY;
 

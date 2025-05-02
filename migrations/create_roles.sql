@@ -1,5 +1,5 @@
 -- Create types for permissions and roles
-CREATE TYPE public.app_permission AS ENUM ('artists.insert', 'pieces.insert', 'recordings.insert', 'set_recordings.insert', 'set_recordings.delete', 'sets.insert', 'sets.delete');
+CREATE TYPE public.app_permission AS ENUM ('artists.insert', 'composers.insert', 'pieces.insert', 'recordings.insert', 'set_recordings.insert', 'set_recordings.delete', 'sets.insert', 'sets.delete');
 CREATE TYPE public.app_role AS ENUM ('admin', 'player');
 
 -- Create the user roles table
@@ -28,6 +28,7 @@ ON TABLE public.role_permissions IS 'Application permissions for each role.';
 INSERT INTO public.role_permissions (role, permission)
 VALUES ('admin', 'artists.insert'),
        ('admin', 'pieces.insert'),
+       ('admin', 'composers.insert'),
        ('admin', 'recordings.insert'),
        ('admin', 'set_recordings.insert'),
        ('admin', 'set_recordings.delete'),
