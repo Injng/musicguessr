@@ -13,7 +13,7 @@ export const load = async ({ locals: { supabase } }) => {
     ] = await Promise.all([
         supabase.from('artists').select('id, name'),
         supabase.from('composers').select('id, name'),
-        supabase.from('pieces').select('id, name, catalog_number')
+        supabase.from('pieces').select('id, name, catalog_number, composer_id')
     ]);
 
     // initialize forms
@@ -151,7 +151,7 @@ export const actions: Actions = {
 
         // add the recording to the database
         const { data, error } = await supabase
-            .from('pieces')
+            .from('recordings')
             .insert([
                 {
                     piece_id: form.data.pieceId,
