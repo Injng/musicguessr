@@ -3,7 +3,6 @@
     import { onMount } from 'svelte';
     import { tweened } from 'svelte/motion';
     import { cubicOut } from 'svelte/easing';
-    import { invalidateAll } from '$app/navigation';
 
     let { data }: { data: PageData } = $props();
 
