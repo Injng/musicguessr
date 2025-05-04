@@ -137,8 +137,6 @@
     }
 
     onMount(() => {
-        invalidateAll();
-
         const loadYouTubeAPI = () => {
             const globalWindow = window as any;
             if (!globalWindow.YT || !globalWindow.YT.Player) {
