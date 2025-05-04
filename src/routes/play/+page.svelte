@@ -8,6 +8,10 @@
     function addSet() {
         goto('/play/new');
     }
+
+    function playSet(setId: number) {
+        goto(`/play/set/${setId}`);
+    }
 </script>
 
 <div class="container mx-auto p-4">
@@ -23,7 +27,8 @@
                             <p class="text-gray-600 text-sm mb-4">{set.description}</p>
                         {/if}
                     </div>
-                    <button class="mt-auto w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200">
+                    <button class="mt-auto w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
+                        onclick={() => playSet(set.id)}>
                         Play Set
                     </button>
                 </div>

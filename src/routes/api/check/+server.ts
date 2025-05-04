@@ -40,14 +40,12 @@ export const POST: RequestHandler = async ({ request, locals: { supabase } }) =>
     }
 
     // check if answers are correct
-    const composerCorrect = composer.id === composerAnswer;
-    const catalogCorrect = piece.catalog_number.replace(/ /g, '').toLowerCase()
+    const isComposerCorrect = composer.id === composerAnswer;
+    const isCatalogCorrect = piece.catalog_number.replace(/ /g, '').toLowerCase()
         === catalogAnswer.replace(/ /g, '').toLowerCase();
 
-    // return success if both are correct
-    if (composerCorrect && catalogCorrect) {
-        return json({ success: true });
-    } else {
-        return json({ success: false });
-    }
+    const success = isComposerCorrect && isCatalogCorrect;
+
+    // Return detailed results
+    return json({ success, isComposerCorrect, isCatalogCorrect });
 };

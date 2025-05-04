@@ -5,12 +5,12 @@
 
 	export let data;
 
-	// Reactive variables for filtering
+	// reactive variables for filtering
 	let selectedComposerId: number | null = null;
 	let selectedPieceId: number | null = null;
 	let selectedArtistId: number | null = null;
 
-	// Filtered data based on selections
+	// filtered data based on selections
 	$: filteredPieces = selectedComposerId
 		? data.pieces.filter((p) => p.composer_id === selectedComposerId)
 		: data.pieces;
@@ -24,23 +24,23 @@
 		return pieceMatch && artistMatch && composerMatch;
 	});
 
-	// Reset piece and recording selection when composer changes
+	// reset piece and recording selection when composer changes
 	$: {
 		if (selectedComposerId) {
 			selectedPieceId = null;
-			selectedArtistId = null; // Also reset artist if desired when composer changes
+			selectedArtistId = null;
 		}
 	}
-	// Reset recording selection when piece changes
+
+	// reset recording selection when piece changes
 	$: {
 		if (selectedPieceId) {
-			// Optionally reset artist when piece changes, or keep it
-			// selectedArtistId = null;
+			selectedArtistId = null;
 		}
 	}
 
 
-	// Form for adding a new set
+	// form for adding a new set
 	const setForm = superForm(data.setForm, {
 		validators: zodClient(setSchema),
 		resetForm: true,
@@ -48,7 +48,7 @@
 	});
 	const { form: setFormData, enhance: setEnhance, message: setFormMessage } = setForm;
 
-	// Form for adding a recording to a set
+	// form for adding a recording to a set
 	const setRecordingForm = superForm(data.setRecordingForm, {
 		validators: zodClient(setRecordingSchema),
 		resetForm: true,
