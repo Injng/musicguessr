@@ -12,6 +12,6 @@ export const setSchema = z.object({
  * Schema for adding recordings to a set.
  */
 export const setRecordingSchema = z.object({
-    recordingId: z.string().min(1, 'Recording ID is required'),
-    setId: z.string().min(1, 'Set ID is required'),
+    recordingId: z.number().min(1, 'Recording ID is required'),
+    setId: z.number().min(1, 'Set ID is required'),
 })
