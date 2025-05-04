@@ -13,14 +13,27 @@ export const load = async ({ locals: { supabase } }) => {
     if (error) {
         console.error('Error loading sets:', error);
         return {
-            sets: []
+            sets: [],
+            composers: []
+        };
+    }
+
+    // load list of composer
+    const { data: composers, error: composerError } = await supabase
+        .from('composers')
+        .select('id, name');
+    if (composerError) {
+        console.error('Error loading composer:', composerError);
+        return {
+            sets: [],
+            composers: []
         };
     }
 
     // initialize the form with superforms
     const form = await superValidate(zod(userSchema));
 
-    return { form, sets }
+    return { form, sets, composers }
 };
 
 export const actions: Actions = {

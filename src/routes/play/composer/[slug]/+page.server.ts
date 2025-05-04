@@ -10,18 +10,28 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
         return { status: 500, error: 'Failed to load composer' };
     }
 
-    // load list of recording IDs for the set
+    // load list of pieces by composer
+    const { data: pieces, error: pieceError } = await supabase
+        .from('pieces')
+        .select('id, name, catalog_number')
+        .eq('composer_id', params.slug);
+    if (pieceError) {
+        console.error('Error loading pieces:', pieceError);
+        return { status: 500, error: 'Failed to load pieces' };
+    }
+
+    // load list of recording IDs for the set of pieces
     const { data: setRecordings, error: setRecordingsError } = await supabase
-        .from('set_recordings')
-        .select('recording_id')
-        .eq('set_id', params.slug);
+        .from('recordings')
+        .select('id')
+        .in('piece_id', pieces?.map(p => p.id) || []);
     if (setRecordingsError) {
         console.error('Error loading set recordings:', setRecordingsError);
         return { status: 500, error: 'Failed to load set recordings' };
     }
 
     // select five random recording IDs in random order with Fisher-Yates shuffle
-    const allRecordingIds = setRecordings.map(r => r.recording_id);
+    const allRecordingIds = setRecordings.map(r => r.id);
     for (let i = allRecordingIds.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [allRecordingIds[i], allRecordingIds[j]] = [allRecordingIds[j], allRecordingIds[i]];
@@ -64,8 +74,12 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
         return { status: 500, error: 'Failed to load recording details' };
     }
 
+    // create a map for quick lookup
+    const recordingMap = new Map(recordings?.map(r => [r.id, r]) || []);
+    const orderedRecordings = recordingIds.map(id => recordingMap.get(id)).filter(r => r !== undefined) as RecordingWithDetails[];
+
     // map the data to a flatter structure for easier use in the frontend
-    const formattedRecordings = recordings?.map(r => ({
+    const formattedRecordings = orderedRecordings?.map(r => ({
         id: r.id,
         url: r.url,
         artistName: r.artists?.name ?? 'Unknown Artist',
@@ -73,12 +87,6 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
         catalogNumber: r.pieces?.catalog_number ?? 'N/A',
         composerName: r.pieces?.composers?.name ?? 'Unknown Composer'
     })) || [];
-
-    // shuffle the recordings again to ensure randomness
-    for (let i = formattedRecordings.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [formattedRecordings[i], formattedRecordings[j]] = [formattedRecordings[j], formattedRecordings[i]];
-    }
 
     return {
         composers: composers || [],

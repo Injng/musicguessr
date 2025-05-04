@@ -4,7 +4,7 @@
     import { superForm } from 'sveltekit-superforms';
 
     let { data }: { data: PageData } = $props();
-    const { sets } = data;
+    const { sets, composers } = data;
     let showProfile = $state(false);
 
     function addSet() {
@@ -13,6 +13,10 @@
 
     function playSet(setId: number) {
         goto(`/play/set/${setId}`);
+    }
+
+    function playComposer(composerId: number) {
+        goto(`/play/composer/${composerId}`);
     }
 
     // get superform data
@@ -106,5 +110,24 @@
             </svg>
             <span class="font-semibold">Add New Set</span>
         </button>
+    </div>
+
+    <h1 class="text-2xl font-bold mb-6 mt-10">Composer Sets</h1>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {#if composers && composers.length > 0}
+            {#each composers as composer (composer.id)}
+                <div class="p-4 border rounded-lg shadow-sm flex flex-col justify-between bg-white">
+                    <div>
+                        <h2 class="text-xl font-semibold mb-2">{composer.name}</h2>
+                        <p class="text-gray-600 text-sm mb-4">The works of {composer.name}.</p>
+                    </div>
+                    <button class="mt-auto w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
+                            onclick={() => playComposer(composer.id)}>
+                        Play Set
+                    </button>
+                </div>
+            {/each}
+        {/if}
     </div>
 </div>
