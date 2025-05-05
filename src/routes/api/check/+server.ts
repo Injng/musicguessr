@@ -75,6 +75,7 @@ export const POST: RequestHandler = async ({ request, locals: { user, supabase }
     // calculate the score based on correctness and time, with a buffer of 5 seconds
     const timeFactor = (currentPlaytime < 5 ? 0 : currentPlaytime) / (totalDuration / 5);
     let calculatedScore = 0;
+    let isNewBest = false;
     if (isComposerSet) {
         if (success) {
             // both correct: Full points exponentially scaled by time
@@ -103,9 +104,6 @@ export const POST: RequestHandler = async ({ request, locals: { user, supabase }
         return json({ score: calculatedScore });
     }
 
-    console.log("---- Round " + round + " ----");
-    console.log("Round score: " + calculatedScore);
-
     // update score in the map
     if (round === 0) {
         scores.set(getGameKey({ userId: user.id, setId, isComposerSet }), calculatedScore);
@@ -115,8 +113,6 @@ export const POST: RequestHandler = async ({ request, locals: { user, supabase }
         calculatedScore += currentScore;
         scores.set(getGameKey({ userId: user.id, setId, isComposerSet }), calculatedScore);
     }
-
-    console.log("Total score: " + calculatedScore);
 
     // if last round, save score to database
     if (round === 4) {
@@ -128,14 +124,11 @@ export const POST: RequestHandler = async ({ request, locals: { user, supabase }
             .eq('set_id', setId)
             .limit(1)
             .single();
-        if (previousMaxScoreError) {
-            console.error('Error loading previous max score:', previousMaxScoreError);
-            return json({ score: calculatedScore });
-        }
 
         // check if new score is higher
         if (previousMaxScore && previousMaxScore.score < calculatedScore) {
             // update score in database
+            isNewBest = true;
             if (isComposerSet) {
                 const {error: updateError} = await supabase
                     .from('scores')
@@ -144,7 +137,7 @@ export const POST: RequestHandler = async ({ request, locals: { user, supabase }
                     .eq('composer_id', setId);
                 if (updateError) {
                     console.error('Error updating score:', updateError);
-                    return json({score: calculatedScore});
+                    return json({score: calculatedScore, isNewBest});
                 }
             } else {
                 const {error: updateError} = await supabase
@@ -154,18 +147,19 @@ export const POST: RequestHandler = async ({ request, locals: { user, supabase }
                     .eq('set_id', setId);
                 if (updateError) {
                     console.error('Error updating score:', updateError);
-                    return json({score: calculatedScore});
+                    return json({score: calculatedScore, isNewBest});
                 }
             }
         } else if (!previousMaxScore) {
             // insert new score in database
+            isNewBest = true;
             if (isComposerSet) {
                 const {error: insertError} = await supabase
                     .from('scores')
                     .insert({user_id: user.id, composer_id: setId, score: calculatedScore});
                 if (insertError) {
                     console.error('Error inserting score:', insertError);
-                    return json({score: calculatedScore});
+                    return json({score: calculatedScore, isNewBest});
                 }
             } else {
                 const {error: insertError} = await supabase
@@ -173,11 +167,11 @@ export const POST: RequestHandler = async ({ request, locals: { user, supabase }
                     .insert({user_id: user.id, set_id: setId, score: calculatedScore});
                 if (insertError) {
                     console.error('Error inserting score:', insertError);
-                    return json({score: calculatedScore});
+                    return json({score: calculatedScore, isNewBest});
                 }
             }
         }
     }
 
-    return json({ score: calculatedScore });
+    return json({ score: calculatedScore, isNewBest });
 };

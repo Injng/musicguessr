@@ -15,6 +15,7 @@
     let player: any;
     let submitted = $state(false);
     let currentScore = $state(0);
+    let isNewBest = $state(false);
 
     // animated score
     const animatedScore = tweened(0, {
@@ -73,6 +74,7 @@
         // ensure score is not negative and round it
         currentScore = result.score - score;
         score = result.score;
+        isNewBest = result.isNewBest; 
         submitted = true;
         await animatedScore.set(currentScore);
     }
@@ -88,6 +90,7 @@
             selectedComposer = null;
             selectedPiece = null;
             currentScore = 0;
+            isNewBest = false; 
             await animatedScore.set(0, {duration: 0});
 
             // destroy the current player instance and reinitialize
@@ -253,6 +256,9 @@
                     </button>
                 {:else}
                     <p class="text-xl font-semibold mb-4">Game Over!</p>
+                    {#if isNewBest}
+                        <p class="text-2xl font-bold text-yellow-500 mb-4 animate-pulse">🎉 New Best Score! 🎉</p>
+                    {/if}
                     <p class="text-lg mb-6">Your final score is {score}</p>
                     <a href="/" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Go Home
