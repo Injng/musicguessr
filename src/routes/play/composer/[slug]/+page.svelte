@@ -27,9 +27,9 @@
     let selectedPiece: { value: number; label: string } | null = $state(null);
 
     // Map data for svelte-select
-    let composerOptions = $derived(data.composers.map(c => ({ value: c.id, label: c.name })));
+    let composerOptions = $derived((data.composers ?? []).map(c => ({ value: c.id, label: c.name })));
     let pieceOptions = $derived(
-        data.pieces
+        (data.pieces ?? [])
             .filter(p => p.composer_id === selectedComposer?.value)
             .map(p => ({ value: p.id, label: `${p.name} (${p.catalog_number})` }))
     );
@@ -44,9 +44,15 @@
         // calculate how long the audio has played
         let currentPlaytime = player.getCurrentTime() - startTime;
 
+        const currentRecording = data.recordings?.[round];
+        if (!currentRecording) {
+            console.error("Current recording not found");
+            return; // Exit if no recording data
+        }
+
         // build the request body and fetch the result
         let body = JSON.stringify({
-            recordingId: data.recordings[round].id,
+            recordingId: currentRecording.id,
             composerAnswer: selectedComposer?.value,
             pieceAnswer: selectedPiece?.value
         })
@@ -59,12 +65,12 @@
         })
         let result = await response.json();
 
-        // calculate the score based on correctness and time
-        const timeFactor = Math.max(0, (1 - (currentPlaytime / totalDuration)));
+        // calculate the score based on correctness and time, with a buffer of 5 seconds
+        const timeFactor = (currentPlaytime < 5 ? 0 : currentPlaytime) / (totalDuration / 5);
         let calculatedScore = 0;
         if (result.success) {
-            // both correct: Full points scaled by time
-            calculatedScore = timeFactor * 5000;
+            // both correct: Full points exponentially scaled by time
+            calculatedScore = 5000 * Math.pow(2.72, -1 * timeFactor);
         } else {
             // both incorrect: 0 points
             calculatedScore = 0;
@@ -80,7 +86,7 @@
      * Proceed to the next round
      */
     function nextRound() {
-        if (round < data.recordings.length - 1) {
+        if (data.recordings && round < data.recordings.length - 1) {
             // update all the state variables
             round += 1;
             submitted = false;
@@ -96,6 +102,7 @@
             initPlayer();
         } else {
             console.log("Game Over! Final Score:", score);
+            // Potentially navigate to a game over screen or show final results here
         }
     }
 
@@ -117,10 +124,21 @@
             console.error("YouTube Player API not ready");
             return;
         }
+        const currentRecording = data.recordings?.[round];
+        if (!currentRecording?.url) {
+            console.error("Recording URL not found for the current round.");
+            return; // Exit if no URL
+        }
+        const videoId = extractId(currentRecording.url);
+        if (!videoId) {
+            console.error("Could not extract video ID from URL:", currentRecording.url);
+            return; // Exit if ID extraction fails
+        }
+
         player = new YT.Player('youtube-player', {
             height: '0',
             width: '0',
-            videoId: extractId(data.recordings[round].url),
+            videoId: videoId,
             playerVars: {
                 autoplay: 0,
                 controls: 0
@@ -156,14 +174,15 @@
                     document.head.appendChild(tag);
                     console.log("YouTube API script added");
                 } else if (globalWindow.YT && globalWindow.YT.Player) {
-                     if (globalWindow.YT.loaded) {
-                         initPlayer();
-                     } else {
-                         console.log("Waiting for existing API script to load...");
-                     }
+                    if (globalWindow.YT.loaded) {
+                        initPlayer(); // API script exists but might not be ready, wait for onYouTubeIframeAPIReady
+                    } else {
+                        console.log("Waiting for existing API script to load...");
+                        // The API script is loading, onYouTubeIframeAPIReady will be called
+                    }
                 }
             } else {
-                 console.log("YouTube API already loaded and ready");
+                console.log("YouTube API already loaded and ready");
                 initPlayer();
             }
         };
@@ -182,7 +201,7 @@
         };
     });
 
-    // Reset piece selection when composer changes
+    // reset piece selection when composer changes
     $effect(() => {
         const currentComposerId = selectedComposer?.value;
         selectedPiece = null;
@@ -192,7 +211,7 @@
 
 <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
     <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
-        <h1 class="text-2xl font-bold mb-4 text-center">Round {round + 1} / {data.recordings.length}</h1>
+        <h1 class="text-2xl font-bold mb-4 text-center">Round {round + 1} / {data.recordings?.length ?? 0}</h1>
         <h2 class="text-xl mb-6 text-center">Total Score: {score}</h2>
 
         {#if !submitted}
@@ -223,26 +242,29 @@
                 <p class="text-4xl font-bold mb-4 text-indigo-600">{Math.round($animatedScore)}</p>
 
                 <!-- Display Correct Answer -->
-                <div class="mb-6 p-4 bg-gray-100 rounded-md border border-gray-300">
-                    <h3 class="text-lg font-semibold mb-2">Correct Answer:</h3>
-                    <p><strong>Composer:</strong> {data.recordings[round].composerName}</p>
-                    <p><strong>Piece:</strong> {data.recordings[round].pieceName}</p>
-                    <p><strong>Catalog:</strong> {data.recordings[round].catalogNumber}</p>
-                    <p><strong>Artist:</strong> {data.recordings[round].artistName}</p>
-                </div>
+                {#if data.recordings?.[round]}
+                    {@const correctAnswer = data.recordings[round]}
+                    <div class="mb-6 p-4 bg-gray-100 rounded-md border border-gray-300">
+                        <h3 class="text-lg font-semibold mb-2">Correct Answer:</h3>
+                        <p><strong>Composer:</strong> {correctAnswer.composerName}</p>
+                        <p><strong>Piece:</strong> {correctAnswer.pieceName}</p>
+                        <p><strong>Catalog:</strong> {correctAnswer.catalogNumber}</p>
+                        <p><strong>Artist:</strong> {correctAnswer.artistName}</p>
+                    </div>
+                {/if}
 
-                 {#if round < data.recordings.length - 1}
+                {#if data.recordings && round < data.recordings.length - 1}
                     <button onclick={nextRound}
                             class="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                         Next Round
                     </button>
-                 {:else}
-                     <p class="text-xl font-semibold mb-4">Game Over!</p>
-                     <p class="text-lg mb-6">Your final score is {score}</p>
-                     <a href="/" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                         Go Home
-                     </a>
-                 {/if}
+                {:else}
+                    <p class="text-xl font-semibold mb-4">Game Over!</p>
+                    <p class="text-lg mb-6">Your final score is {score}</p>
+                    <a href="/" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Go Home
+                    </a>
+                {/if}
             </div>
         {/if}
     </div>
