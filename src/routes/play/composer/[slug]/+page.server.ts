@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     // load list of all pieces
     const { data: pieces, error: pieceError } = await supabase
         .from('pieces')
-        .select('id, name, catalog_number, composer_id'); 
+        .select('id, name, composer_id');
     if (pieceError) {
         console.error('Error loading pieces:', pieceError);
         return { status: 500, error: 'Failed to load pieces' };
@@ -56,7 +56,6 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
         } | null;
         pieces: {
             name: string | null;
-            catalog_number: string | null;
             composers: {
                 name: string | null;
             } | null;
@@ -71,7 +70,6 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
             artists ( name ),
             pieces (
                 name,
-                catalog_number,
                 composers ( name )
             )
         `)
@@ -93,7 +91,6 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
         url: r.url,
         artistName: r.artists?.name ?? 'Unknown Artist',
         pieceName: r.pieces?.name ?? 'Unknown Piece',
-        catalogNumber: r.pieces?.catalog_number ?? 'N/A',
         composerName: r.pieces?.composers?.name ?? 'Unknown Composer'
     })) || [];
 

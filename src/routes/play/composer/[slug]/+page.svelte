@@ -32,7 +32,7 @@
     let pieceOptions = $derived(
         (data.pieces ?? [])
             .filter(p => p.composer_id === selectedComposer?.value)
-            .map(p => ({ value: p.id, label: `${p.name} (${p.catalog_number})` }))
+            .map(p => ({ value: p.id, label: `${p.name}` }))
     );
 
     /**
@@ -244,7 +244,6 @@
                         <h3 class="text-lg font-semibold mb-2">Correct Answer:</h3>
                         <p><strong>Composer:</strong> {correctAnswer.composerName}</p>
                         <p><strong>Piece:</strong> {correctAnswer.pieceName}</p>
-                        <p><strong>Catalog:</strong> {correctAnswer.catalogNumber}</p>
                         <p><strong>Artist:</strong> {correctAnswer.artistName}</p>
                     </div>
                 {/if}

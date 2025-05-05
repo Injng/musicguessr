@@ -37,7 +37,6 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
         } | null;
         pieces: {
             name: string | null;
-            catalog_number: string | null;
             composers: {
                 name: string | null;
             } | null;
@@ -52,7 +51,6 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
             artists ( name ),
             pieces (
                 name,
-                catalog_number,
                 composers ( name )
             )
         `)
@@ -70,7 +68,6 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
         url: r.url,
         artistName: r.artists?.name ?? 'Unknown Artist',
         pieceName: r.pieces?.name ?? 'Unknown Piece',
-        catalogNumber: r.pieces?.catalog_number ?? 'N/A',
         composerName: r.pieces?.composers?.name ?? 'Unknown Composer'
     })) || [];
 

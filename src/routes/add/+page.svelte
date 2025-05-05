@@ -163,22 +163,6 @@
                 {/if}
             </div>
             <div>
-                <label for="piece-catalog" class="block text-sm font-medium text-gray-700"
-                >Catalog Number</label
-                >
-                <input
-                        type="text"
-                        id="piece-catalog"
-                        name="catalogNumber"
-                        bind:value={$pieceForm.catalogNumber}
-                        aria-invalid={$pieceErrors.catalogNumber ? 'true' : undefined}
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-                {#if $pieceErrors.catalogNumber}
-                    <p class="mt-2 text-sm text-red-600">{$pieceErrors.catalogNumber}</p>
-                {/if}
-            </div>
-            <div>
                 <label for="piece-composer" class="block text-sm font-medium text-gray-700">Composer</label>
                 <select
                         id="piece-composer"
@@ -231,7 +215,7 @@
                 >
                     <option value="" disabled selected>Select a piece</option>
                     {#each data.pieces as piece}
-                        <option value={piece.id}>{data.composers.find(c => c.id  === piece.composer_id).name}: {piece.name} ({piece.catalog_number})</option>
+                        <option value={piece.id}>{data.composers.find(c => c.id  === piece.composer_id).name}: {piece.name}</option>
                     {/each}
                 </select>
                 {#if $recordingErrors.pieceId}

@@ -146,7 +146,7 @@
 				>
 					<option value={null}>All Pieces</option>
 					{#each filteredPieces as piece}
-						<option value={piece.id}>{piece.name} ({piece.catalog_number})</option>
+						<option value={piece.id}>{piece.name}</option>
 					{/each}
 				</select>
 			</div>

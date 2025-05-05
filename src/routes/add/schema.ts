@@ -19,7 +19,6 @@ export const composerSchema = z.object({
  */
 export const pieceSchema = z.object({
     name: z.string().min(1, 'Name is required'),
-    catalogNumber: z.string().min(1, 'Catalog number is required'),
     composerId: z.number().min(1, 'Composer is required'),
 });
 

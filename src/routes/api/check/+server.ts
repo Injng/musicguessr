@@ -48,7 +48,7 @@ export const POST: RequestHandler = async ({ request, locals: { user, supabase }
     // get piece from piece id
     const { data: piece, error: pieceError } = await supabase
         .from('pieces')
-        .select('id, catalog_number, composer_id')
+        .select('id, composer_id')
         .eq('id', piece_id.piece_id)
         .single();
     if (pieceError) {

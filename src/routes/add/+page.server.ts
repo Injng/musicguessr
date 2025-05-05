@@ -13,7 +13,7 @@ export const load = async ({ locals: { supabase } }) => {
     ] = await Promise.all([
         supabase.from('artists').select('id, name'),
         supabase.from('composers').select('id, name'),
-        supabase.from('pieces').select('id, name, catalog_number, composer_id')
+        supabase.from('pieces').select('id, name, composer_id')
     ]);
 
     // initialize forms
@@ -120,7 +120,6 @@ export const actions: Actions = {
             .insert([
                 {
                     name: form.data.name,
-                    catalog_number: form.data.catalogNumber,
                     composer_id: form.data.composerId,
                 }
             ])

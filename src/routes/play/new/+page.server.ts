@@ -15,7 +15,7 @@ export const load = async ({ locals: { session, supabase } }) => {
     ] = await Promise.all([
         supabase.from('artists').select('id, name'),
         supabase.from('composers').select('id, name'),
-        supabase.from('pieces').select('id, name, catalog_number, composer_id'),
+        supabase.from('pieces').select('id, name, composer_id'),
         supabase.from('recordings').select('id, piece_id, artist_id, url'),
         supabase.from('sets').select('id, name, description').eq('owner_id', session?.user.id),
     ]);
