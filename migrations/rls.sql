@@ -172,6 +172,12 @@ ON public.scores
 FOR INSERT
 WITH CHECK (user_id = auth.uid());
 
+-- Policy 3: Allow users to insert scores only for themselves
+CREATE POLICY "Allow users to insert their own scores"
+ON public.scores
+FOR INSERT
+WITH CHECK (user_id = auth.uid());
+
 -- Add New Player Trigger
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER

@@ -54,7 +54,12 @@
         let body = JSON.stringify({
             recordingId: currentRecording.id,
             composerAnswer: selectedComposer?.value,
-            pieceAnswer: selectedPiece?.value
+            pieceAnswer: selectedPiece?.value,
+            round,
+            currentPlaytime,
+            totalDuration,
+            isComposerSet: false,
+            setId: data.setId,
         })
         let response = await fetch('/api/check', {
             method: 'POST',
@@ -65,30 +70,17 @@
         })
         let result = await response.json();
 
-        // calculate the score based on correctness and time, with a buffer of 5 seconds
-        const timeFactor = (currentPlaytime < 5 ? 0 : currentPlaytime) / (totalDuration / 5);
-        let calculatedScore = 0;
-        if (result.success) {
-            // both correct: Full points exponentially scaled by time
-            calculatedScore = 2500 * Math.pow(2.72, -1 * timeFactor) + 2500;
-        } else if (result.composerCorrect) {
-            // partially correct: Half points exponentially scaled by time
-            calculatedScore = 2500 * Math.pow(2.72, -1 * timeFactor);
-        } else {
-            // both incorrect: 0 points
-            calculatedScore = 0;
-        }
         // ensure score is not negative and round it
-        currentScore = Math.max(0, Math.round(calculatedScore));
-        score += currentScore;
+        currentScore = result.score - score;
+        score = result.score;
         submitted = true;
-        animatedScore.set(currentScore);
+        await animatedScore.set(currentScore);
     }
 
     /**
      * Proceed to the next round
      */
-    function nextRound() {
+    async function nextRound() {
         if (data.recordings && round < data.recordings.length - 1) {
             // update all the state variables
             round += 1;
@@ -96,7 +88,7 @@
             selectedComposer = null;
             selectedPiece = null;
             currentScore = 0;
-            animatedScore.set(0, { duration: 0 });
+            await animatedScore.set(0, {duration: 0});
 
             // destroy the current player instance and reinitialize
             if (player && typeof player.destroy === 'function') {
@@ -104,8 +96,6 @@
             }
             initPlayer();
         } else {
-            console.log("Game Over! Final Score:", score);
-            // Potentially navigate to a game over screen or show final results here
         }
     }
 

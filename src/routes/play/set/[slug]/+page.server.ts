@@ -83,5 +83,6 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     return {
         composers: composers || [],
         recordings: formattedRecordings,
+        setId: params.slug,
     };
 };
