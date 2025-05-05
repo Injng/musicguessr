@@ -10,21 +10,30 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
         return { status: 500, error: 'Failed to load composer' };
     }
 
-    // load list of pieces by composer
+    // load list of all pieces
     const { data: pieces, error: pieceError } = await supabase
         .from('pieces')
-        .select('id, name, catalog_number')
-        .eq('composer_id', params.slug);
+        .select('id, name, catalog_number, composer_id'); 
     if (pieceError) {
         console.error('Error loading pieces:', pieceError);
         return { status: 500, error: 'Failed to load pieces' };
     }
 
-    // load list of recording IDs for the set of pieces
+    // load list of recording IDs for the initial composer's pieces 
+    const { data: initialPieces, error: initialPieceError } = await supabase
+        .from('pieces')
+        .select('id')
+        .eq('composer_id', params.slug);
+
+    if (initialPieceError) {
+        console.error('Error loading initial pieces:', initialPieceError);
+        return { status: 500, error: 'Failed to load initial pieces' };
+    }
+
     const { data: setRecordings, error: setRecordingsError } = await supabase
         .from('recordings')
         .select('id')
-        .in('piece_id', pieces?.map(p => p.id) || []);
+        .in('piece_id', initialPieces?.map(p => p.id) || []); 
     if (setRecordingsError) {
         console.error('Error loading set recordings:', setRecordingsError);
         return { status: 500, error: 'Failed to load set recordings' };
@@ -90,6 +99,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 
     return {
         composers: composers || [],
+        pieces: pieces || [],
         recordings: formattedRecordings,
     };
 };

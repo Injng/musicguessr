@@ -4,7 +4,7 @@ import type { RequestHandler } from './$types';
 export const POST: RequestHandler = async ({ request, locals: { supabase } }) => {
     // get answers
     const requestData = await request.json();
-    const { recordingId, composerAnswer, catalogAnswer } = requestData;
+    const { recordingId, composerAnswer, pieceAnswer } = requestData;
 
     // get piece id from database
     const { data: piece_id, error } = await supabase
@@ -41,11 +41,10 @@ export const POST: RequestHandler = async ({ request, locals: { supabase } }) =>
 
     // check if answers are correct
     const isComposerCorrect = composer.id === composerAnswer;
-    const isCatalogCorrect = piece.catalog_number.replace(/ /g, '').toLowerCase()
-        === catalogAnswer.replace(/ /g, '').toLowerCase();
+    const isPieceCorrect = piece.id === pieceAnswer;
 
-    const success = isComposerCorrect && isCatalogCorrect;
+    const success = isComposerCorrect && isPieceCorrect;
 
     // Return detailed results
-    return json({ success, isComposerCorrect, isCatalogCorrect });
+    return json({ success, isComposerCorrect, isPieceCorrect });
 };

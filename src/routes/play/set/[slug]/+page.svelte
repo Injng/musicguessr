@@ -57,8 +57,8 @@
             // both correct: Full points scaled by time
             calculatedScore = timeFactor * 5000;
         } else if (result.isComposerCorrect || result.isCatalogCorrect) {
-            // partially correct: Partial points (e.g., 1500 max) scaled by time
-            calculatedScore = timeFactor * 1500;
+            // partially correct: Partial points (e.g., 1000 max) scaled by time
+            calculatedScore = timeFactor * 1000;
         } else {
             // both incorrect: 0 points
             calculatedScore = 0;
