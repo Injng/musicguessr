@@ -155,6 +155,23 @@ USING (
     public.authorize('set_recordings.delete')
 );
 
+-- ---- Scores Table ----
+
+-- Policy 1: Allow read access for all authenticated users
+CREATE
+POLICY "Allow read access to authenticated users"
+ON public.scores
+FOR
+SELECT
+    USING (auth.role() = 'authenticated');
+
+-- Policy 2: Allow update if user_id is the same
+CREATE
+POLICY "Allow update based on ownership"
+ON public.scores
+FOR INSERT
+WITH CHECK (user_id = auth.uid());
+
 -- Add New Player Trigger
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
