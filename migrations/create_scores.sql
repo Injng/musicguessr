@@ -1,5 +1,6 @@
 CREATE TABLE scores
 (
+    id SERIAL PRIMARY KEY,
     user_id UUID,
     composer_id INT,
     set_id INT,
