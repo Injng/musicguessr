@@ -11,7 +11,6 @@
     let round = $state(0);
     let score = $state(0);
     let startTime = 0;
-    let totalDuration = 0;
     let player: any;
     let submitted = $state(false);
     let currentScore = $state(0);
@@ -57,7 +56,6 @@
             pieceAnswer: selectedPiece?.value,
             round,
             currentPlaytime,
-            totalDuration,
             isComposerSet: false,
             setId: data.setId,
         })
@@ -144,7 +142,6 @@
 
     function onPlayerReady(event: any) {
         const duration = player.getDuration();
-        totalDuration = duration;
         const buffer = Math.min(30, duration / 2);
         const maxStartTime = Math.max(0, duration - buffer);
         startTime = Math.floor(Math.random() * maxStartTime);

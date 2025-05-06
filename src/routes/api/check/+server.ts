@@ -32,7 +32,7 @@ function getGameKey(game: Game): string {
 export const POST: RequestHandler = async ({ request, locals: { user, supabase } }) => {
     // get answers
     const requestData = await request.json();
-    const { recordingId, composerAnswer, pieceAnswer, round, currentPlaytime, totalDuration, isComposerSet, setId } = requestData;
+    const { recordingId, composerAnswer, pieceAnswer, round, currentPlaytime, isComposerSet, setId } = requestData;
 
     // get piece id from database
     const { data: piece_id, error } = await supabase
@@ -73,7 +73,7 @@ export const POST: RequestHandler = async ({ request, locals: { user, supabase }
     const success = isComposerCorrect && isPieceCorrect;
 
     // calculate the score based on correctness and time, with a buffer of 5 seconds
-    const timeFactor = (currentPlaytime < 5 ? 0 : currentPlaytime) / (totalDuration / 5);
+    const timeFactor = (currentPlaytime < 5 ? 0 : currentPlaytime) / 100;
     let calculatedScore = 0;
     let isNewBest = false;
     if (isComposerSet) {
