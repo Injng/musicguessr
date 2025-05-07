@@ -19,6 +19,9 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
         return { status: 500, error: 'Failed to load pieces' };
     }
 
+    // sort pieces by id
+    pieces?.sort((a, b) => a.id - b.id);
+
     // load list of recording IDs for the initial composer's pieces 
     const { data: initialPieces, error: initialPieceError } = await supabase
         .from('pieces')

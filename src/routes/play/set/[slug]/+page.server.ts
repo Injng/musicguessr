@@ -10,6 +10,18 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
         return { status: 500, error: 'Failed to load composer' };
     }
 
+    // load list of all pieces
+    const { data: pieces, error: pieceError } = await supabase
+        .from('pieces')
+        .select('id, name, composer_id');
+    if (pieceError) {
+        console.error('Error loading pieces:', pieceError);
+        return { status: 500, error: 'Failed to load pieces' };
+    }
+
+    // sort pieces by id
+    pieces?.sort((a, b) => a.id - b.id);
+
     // load list of recording IDs for the set
     const { data: setRecordings, error: setRecordingsError } = await supabase
         .from('set_recordings')
@@ -80,6 +92,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     return {
         composers: composers || [],
         recordings: formattedRecordings,
+        pieces: pieces || [],
         setId: params.slug,
     };
 };

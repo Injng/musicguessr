@@ -16,6 +16,9 @@ export const load = async ({ locals: { supabase } }) => {
         supabase.from('pieces').select('id, name, composer_id')
     ]);
 
+    // sort pieces by id
+    pieces?.sort((a, b) => a.id - b.id);
+
     // initialize forms
     const artistForm = await superValidate(zod(artistSchema));
     const composerForm = await superValidate(zod(composerSchema));
