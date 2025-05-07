@@ -117,13 +117,34 @@ export const POST: RequestHandler = async ({ request, locals: { user, supabase }
     // if last round, save score to database
     if (round === 4) {
         // get previous max score
-        const { data: previousMaxScore, error: previousMaxScoreError } = await supabase
-            .from('scores')
-            .select('score')
-            .eq('user_id', user.id)
-            .eq('set_id', setId)
-            .limit(1)
-            .single();
+        let previousMaxScore = null;
+        if (isComposerSet) {
+            const {data: newPreviousMaxScore, error: previousMaxScoreError} = await supabase
+                .from('scores')
+                .select('score')
+                .eq('user_id', user.id)
+                .eq('composer_id', setId)
+                .limit(1)
+                .single();
+            if (previousMaxScoreError) {
+                console.error('Error loading previous max score:', previousMaxScoreError);
+                return json({score: calculatedScore, isNewBest});
+            }
+            previousMaxScore = newPreviousMaxScore;
+        } else {
+            const {data: newPreviousMaxScore, error: previousMaxScoreError} = await supabase
+                .from('scores')
+                .select('score')
+                .eq('user_id', user.id)
+                .eq('set_id', setId)
+                .limit(1)
+                .single();
+            if (previousMaxScoreError) {
+                console.error('Error loading previous max score:', previousMaxScoreError);
+                return json({score: calculatedScore, isNewBest});
+            }
+            previousMaxScore = newPreviousMaxScore;
+        }
 
         // check if new score is higher
         if (previousMaxScore && previousMaxScore.score < calculatedScore) {
