@@ -254,6 +254,15 @@
                         <p><strong>Composer:</strong> {correctAnswer.composerName}</p>
                         <p><strong>Piece:</strong> {correctAnswer.pieceName}</p>
                         <p><strong>Artist:</strong> {correctAnswer.artistName}</p>
+                        <p class="mt-2">
+                            <a href="{correctAnswer.url}&t={Math.floor(startTime)}" target="_blank" rel="noopener noreferrer" 
+                               class="text-blue-600 hover:text-blue-800 underline">
+                                Watch on YouTube
+                            </a>
+                            <span class="text-gray-600 ml-2">
+                                (starts at {Math.floor(startTime / 60)}:{String(Math.floor(startTime % 60)).padStart(2, '0')})
+                            </span>
+                        </p>
                     </div>
                 {/if}
 
